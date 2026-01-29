@@ -1,0 +1,14 @@
+# Compiled executables
+employee
+hello
+logwriter
+
+# Object files
+*.o
+
+# Log files
+*.log
+
+# Editor temporary files
+*~
+*.swp
