@@ -1,0 +1,11 @@
+# compiled executables
+phase1
+phase2
+a.out
+
+# object files
+*.o
+
+# temporary editor files
+*~
+*.swp
