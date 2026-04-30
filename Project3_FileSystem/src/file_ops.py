@@ -6,3 +6,20 @@ def list_files(path):
     except Exception as e:
         print("Error listing files:", e)
         return []
+
+def read_file(path):
+    try:
+        with open(path, 'r') as f:
+            return f.read()
+    except Exception as e:
+        print("Error reading file:", e)
+        return None
+
+def create_file(path, content):
+    try:
+        with open(path, 'w') as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        print("Error creating file:", e)
+        return False
