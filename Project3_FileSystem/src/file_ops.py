@@ -32,3 +32,12 @@ def update_file(path, content):
     except Exception as e:
         print("Error updating file:", e)
         return False
+
+def delete_file(path):
+    import os
+    try:
+        os.remove(path)
+        return True
+    except Exception as e:
+        print("Error deleting file:", e)
+        return False

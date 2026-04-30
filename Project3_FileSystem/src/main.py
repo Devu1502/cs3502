@@ -1,5 +1,6 @@
 import tkinter as tk
-from file_ops import list_files, read_file, create_file, update_file
+from tkinter import messagebox
+from file_ops import list_files, read_file, create_file, update_file, delete_file
 import os
 
 def main():
@@ -62,6 +63,26 @@ def main():
 
     save_button = tk.Button(root, text="Save File", command=save_file)
     save_button.pack(pady=5)
+
+    def delete_file_ui():
+        nonlocal selected_file
+
+        if not selected_file:
+            return
+
+        confirm = messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this file?")
+
+        if confirm:
+            success = delete_file(selected_file)
+
+            if success:
+                listbox.delete(tk.ANCHOR)
+                text_area.delete("1.0", tk.END)
+                selected_file = None
+
+    delete_button = tk.Button(root, text="Delete File", command=delete_file_ui)
+    delete_button.pack(pady=5)
+
 
     listbox.bind("<<ListboxSelect>>", on_file_select)
 
