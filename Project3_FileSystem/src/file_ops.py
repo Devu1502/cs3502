@@ -23,3 +23,12 @@ def create_file(path, content):
     except Exception as e:
         print("Error creating file:", e)
         return False
+
+def update_file(path, content):
+    try:
+        with open(path, 'w') as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        print("Error updating file:", e)
+        return False
