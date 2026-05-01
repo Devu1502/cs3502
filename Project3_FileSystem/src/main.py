@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from file_ops import list_files, read_file, create_file, update_file, delete_file
+from file_ops import list_files, read_file, create_file, update_file, delete_file, create_file_ui, rename_file
 import os
 
 def main():
@@ -26,6 +26,12 @@ def main():
 
     for file in files:
         listbox.insert(tk.END, file)
+
+    def refresh_list(path):
+        listbox.delete(0, tk.END)
+        files = list_files(path)
+        for file in files:
+            listbox.insert(tk.END, file)
 
     def on_file_select(event):
         nonlocal selected_file
@@ -107,6 +113,71 @@ def main():
 
     delete_button = tk.Button(root, text="Delete File", command=delete_file_ui)
     delete_button.pack(pady=5)
+
+    def rename_file_ui():
+        nonlocal selected_file
+
+        if not selected_file:
+            messagebox.showerror("Error", "No file selected")
+            return
+
+        new_name = entry.get()
+
+        if not new_name:
+            messagebox.showerror("Error", "Enter new name")
+            return
+
+        new_path = os.path.join(current_path, new_name)
+
+        success = rename_file(selected_file, new_path)
+
+        if success:
+            listbox.delete(tk.ANCHOR)
+            listbox.insert(tk.END, new_name)
+            selected_file = new_path
+            entry.delete(0, tk.END)
+        else:
+            messagebox.showerror("Error", "Rename failed")
+    
+    rename_button = tk.Button(root, text="Rename File", command=rename_file_ui)
+    rename_button.pack(pady=5)
+
+    def on_file_select(event):
+        nonlocal selected_file, current_path
+
+        if not listbox.curselection():
+            return
+
+        selected = listbox.get(listbox.curselection())
+        full_path = os.path.join(current_path, selected)
+
+        if os.path.isdir(full_path):
+            current_path = full_path
+            label.config(text=f"Path: {current_path}")
+            refresh_list(current_path)
+            selected_file = None
+            text_area.delete("1.0", tk.END)
+
+        elif os.path.isfile(full_path):
+            selected_file = full_path
+            content = read_file(full_path)
+
+            text_area.delete("1.0", tk.END)
+            if content:
+                text_area.insert(tk.END, content)\
+
+    def go_back():
+        nonlocal current_path
+
+        parent = os.path.dirname(current_path)
+
+        if parent != current_path:
+            current_path = parent
+            label.config(text=f"Path: {current_path}")
+            refresh_list(current_path)
+
+    back_button = tk.Button(root, text="Go Back", command=go_back)
+    back_button.pack(pady=5)
 
 
     listbox.bind("<<ListboxSelect>>", on_file_select)

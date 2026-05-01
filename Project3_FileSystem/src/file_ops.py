@@ -42,23 +42,11 @@ def delete_file(path):
         print("Error deleting file:", e)
         return False
 
-def create_file_ui():
-    filename = entry.get()
-
-    if not filename:
-        messagebox.showerror("Error", "Filename cannot be empty")
-        return
-
-    full_path = os.path.join(current_path, filename)
-
-    if os.path.exists(full_path):
-        messagebox.showerror("Error", "File already exists")
-        return
-
-    success = create_file(full_path, "")
-
-    if success:
-        listbox.insert(tk.END, filename)
-        entry.delete(0, tk.END)
-    else:
-        messagebox.showerror("Error", "Failed to create file")
+def rename_file(old_path, new_path):
+    import os
+    try:
+        os.rename(old_path, new_path)
+        return True
+    except Exception as e:
+        print("Error renaming file:", e)
+        return False
