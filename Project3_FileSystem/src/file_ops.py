@@ -34,7 +34,6 @@ def update_file(path, content):
         return False
 
 def delete_file(path):
-    import os
     try:
         os.remove(path)
         return True
@@ -43,10 +42,17 @@ def delete_file(path):
         return False
 
 def rename_file(old_path, new_path):
-    import os
     try:
         os.rename(old_path, new_path)
         return True
     except Exception as e:
         print("Error renaming file:", e)
+        return False
+
+def create_directory(path):
+    try:
+        os.mkdir(path)
+        return True
+    except Exception as e:
+        print("Error creating directory:", e)
         return False

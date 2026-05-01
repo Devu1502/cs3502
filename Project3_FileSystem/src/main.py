@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
-from file_ops import list_files, read_file, create_file, update_file, delete_file, create_file_ui, rename_file
+from file_ops import list_files, read_file, create_file, update_file, delete_file, rename_file, create_directory
 import os
+from datetime import datetime
 
 def main():
     root = tk.Tk()
@@ -21,34 +22,27 @@ def main():
     listbox.pack(pady=10)
     text_area = tk.Text(root, height=10, width=80)
     text_area.pack(pady=10)
+    status_label = tk.Label(root, text="Ready", fg="green")
+    status_label.pack(pady=5)
 
     files = list_files(current_path)
 
     for file in files:
         listbox.insert(tk.END, file)
 
+    def show_metadata(path):
+        stats = os.stat(path)
+        size = stats.st_size
+        modified = datetime.fromtimestamp(stats.st_mtime)
+
+        messagebox.showinfo("Metadata", f"Size: {size} bytes\nModified: {modified}")
+
+
     def refresh_list(path):
         listbox.delete(0, tk.END)
         files = list_files(path)
         for file in files:
             listbox.insert(tk.END, file)
-
-    def on_file_select(event):
-        nonlocal selected_file
-
-        if not listbox.curselection():
-            return
-
-        selected = listbox.get(listbox.curselection())
-        full_path = os.path.join(current_path, selected)
-
-        if os.path.isfile(full_path):
-            selected_file = full_path
-            content = read_file(full_path)
-
-            text_area.delete("1.0", tk.END)
-            if content:
-                text_area.insert(tk.END, content)
 
     def create_file_ui():
         filename = entry.get()
@@ -68,11 +62,33 @@ def main():
         if success:
             listbox.insert(tk.END, filename)
             entry.delete(0, tk.END)
+            status_label.config(text="File created successfully")
         else:
             messagebox.showerror("Error", "Failed to create file")
     
     create_button = tk.Button(root, text="Create File", command=create_file_ui)
     create_button.pack(pady=5)
+
+    def create_directory_ui():
+        dirname = entry.get()
+
+        if not dirname:
+            messagebox.showerror("Error", "Directory name cannot be empty")
+            return
+
+        full_path = os.path.join(current_path, dirname)
+
+        success = create_directory(full_path)
+
+        if success:
+            listbox.insert(tk.END, dirname)
+            entry.delete(0, tk.END)
+            status_label.config(text="Directory created")
+        else:
+            messagebox.showerror("Error", "Failed to create directory")
+        
+    dir_button = tk.Button(root, text="Create Directory", command=create_directory_ui)
+    dir_button.pack(pady=5)
 
     def save_file():
         if not selected_file:
@@ -84,6 +100,7 @@ def main():
 
         if success:
             messagebox.showinfo("Success", "File saved successfully")
+            status_label.config(text="File saved")
         else:
             messagebox.showerror("Error", "Failed to save file")
 
@@ -107,6 +124,7 @@ def main():
                     listbox.delete(selected_index)
                 text_area.delete("1.0", tk.END)
                 selected_file = None
+                status_label.config(text="File deleted")
 
             if not success:
                 messagebox.showerror("Error", "Failed to delete file")
@@ -136,6 +154,7 @@ def main():
             listbox.insert(tk.END, new_name)
             selected_file = new_path
             entry.delete(0, tk.END)
+            status_label.config(text="File renamed")
         else:
             messagebox.showerror("Error", "Rename failed")
     
@@ -161,10 +180,11 @@ def main():
         elif os.path.isfile(full_path):
             selected_file = full_path
             content = read_file(full_path)
+            show_metadata(full_path)
 
             text_area.delete("1.0", tk.END)
-            if content:
-                text_area.insert(tk.END, content)\
+            if content is not None:
+                text_area.insert(tk.END, content)
 
     def go_back():
         nonlocal current_path
